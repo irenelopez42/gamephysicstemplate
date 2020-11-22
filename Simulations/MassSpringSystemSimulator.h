@@ -1,6 +1,8 @@
 #ifndef MASSSPRINGSYSTEMSIMULATOR_h
 #define MASSSPRINGSYSTEMSIMULATOR_h
 #include "Simulator.h"
+#include <list>
+using namespace std;
 
 // Do Not Change
 #define EULER 0
@@ -8,6 +10,17 @@
 #define MIDPOINT 2
 // Do Not Change
 
+struct MassPoint {
+	Vec3 position;
+	Vec3 velocity; 
+	bool isFixed;
+};
+
+struct Spring {
+	int mp1;
+	int mp2;
+	float initLength;
+};
 
 class MassSpringSystemSimulator:public Simulator{
 public:
@@ -16,6 +29,7 @@ public:
 	
 	// UI Functions
 	const char * getTestCasesStr();
+	const char * getIntegratorStr();
 	void initUI(DrawingUtilitiesClass * DUC);
 	void reset();
 	void drawFrame(ID3D11DeviceContext* pd3dImmediateContext);
@@ -48,6 +62,8 @@ private:
 	float m_fStiffness;
 	float m_fDamping;
 	int m_iIntegrator;
+	vector<MassPoint> myMassPointVector;
+	vector<Spring> mySpringVector;
 
 	// UI Attributes
 	Vec3 m_externalForce;
