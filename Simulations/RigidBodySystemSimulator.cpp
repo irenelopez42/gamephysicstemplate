@@ -29,9 +29,23 @@ void RigidBodySystemSimulator::reset()
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 {
-	for (RigidBody& rb : this->rigidBodys) {
+	DUC->setUpLighting(Vec3(0, 0, 0), 0.4 * Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 
-		//draw the RigidBodys
+	for (RigidBody& rb : this->rigidBodys) {
+		double x[] = { rb.size.x,0.0,0.0,0.0,
+				       0.0,rb.size.y,0.0,0.0,
+				       0.0,0.0,rb.size.z,0.0,
+				       0.0,0.0,0.0,0.0 };
+		double y[] = { 0.0,0.0,0.0,rb.position.x,
+					  0.0,0.0,0.0,rb.position.y,
+					  0.0,0.0,0.0,rb.position.z,
+					  0.0,0.0,0.0,0.0 };
+		rb.scalingMatrix = Mat4(0.0);
+		rb.translationMatrix = Mat4(0.0);
+		rb.scalingMatrix.initFromArray(x);
+		rb.translationMatrix.initFromArray(y);
+		rb.worldMatrix = rb.scalingMatrix * rb.rotationMatrix * rb.translationMatrix;
+		DUC->drawRigidBody(rb.worldMatrix);
 	}
 }
 
@@ -42,10 +56,13 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 	this->reset();
 	switch (testCase) {
 	case 0:
-
+		addRigidBody(Vec3(0.0,0.0,0.0), Vec3(1.0, 0.6, 0.5), 2);
+		(this->forces).push_back(Force(Vec3(1.0,1.0,1.0), Vec3(0.3, 0.5, 0.25)));
 		break;
 	case 1:
-
+		addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.6, 0.5), 2);
+		(this->forces).push_back(Force(Vec3(1.0, 1.0, 1.0), Vec3(0.3, 0.5, 0.25)));
+		//set timestep
 		break;
 	case 2:
 

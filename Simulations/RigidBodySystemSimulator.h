@@ -22,10 +22,12 @@ struct RigidBody {
 	Mat4 scalingMatrix;
 	Mat4 worldMatrix;
 	Mat4 InitialInvertedInertiaTensor;
-	Mat4 InertiaTensor;
 	Mat4 InvertedInertialTensor;
 };
 struct Force {
+	Force(Vec3 force, Vec3 position)
+		: force(force), position(position) {
+	}
 	Vec3 force;
 	Vec3 position;
 };
