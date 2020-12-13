@@ -93,13 +93,28 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 
 void RigidBodySystemSimulator::calculateInitialInertiaTensor(RigidBody rb) {
 
-
 }
 
 void RigidBodySystemSimulator::calculateRotationMatrix(RigidBody rb) {
+	double x[] = { 
+		1.0 - 2*pow(rb.orientation.y,2)-2*pow(rb.orientation.z,2),
+		2*rb.orientation.x * rb.orientation.y - 2*rb.orientation.w * rb.orientation.z,
+		2*rb.orientation.x * rb.orientation.z + 2*rb.orientation.w * rb.orientation.y,
+		0.0,
+		2*rb.orientation.x * rb.orientation.y + 2*rb.orientation.w * rb.orientation.z,
+		1 - 2*pow(rb.orientation.x,2) - 2* pow(rb.orientation.z,2),
+		2 * rb.orientation.y * rb.orientation.z - 2 * rb.orientation.w * rb.orientation.x,
+		0.0,
+		2 * rb.orientation.x * rb.orientation.z - 2 * rb.orientation.w * rb.orientation.y,
+		2 * rb.orientation.y * rb.orientation.z + 2 * rb.orientation.w * rb.orientation.x,
+		1 - 2 * pow(rb.orientation.x,2) - 2 * pow(rb.orientation.y,2),
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0 };
 	Mat4 rotationMatrix = Mat4(0.0);
-
-
+	rotationMatrix.initFromArray(x);
 }
 
 void RigidBodySystemSimulator::onClick(int x, int y)
