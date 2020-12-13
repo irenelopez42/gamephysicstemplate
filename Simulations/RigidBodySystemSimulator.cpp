@@ -2,7 +2,7 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-	m_externalForce = Vec3(50, 50, 50);
+	m_externalForce = Vec3(0, 0, 0);
 	m_fGravity = 0;
 
 	m_mouse = Point2D();
@@ -74,25 +74,82 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 	}
 
 	for (RigidBody& rb : this->rigidBodys) {
+
 		//Euler step
+
 		rb.position = rb.position + timeStep * rb.linearVelocity;
 		rb.linearVelocity = rb.linearVelocity + timeStep * F / rb.mass;
-		//Orientation
-		rb.orientation = rb.orientation + timeStep / 2 * Quat(0, rb.angularVelocity.x, rb.angularVelocity.y, rb.angularVelocity.z) * rb.orientation;
-		//Angular momentum
-		rb.angularMomentum = rb.angularMomentum * timeStep / q;
-		//Rotation Matrix
-		calculateRotationMatrix(rb);
-		//Inverse Intertia Tensor
-			//rb.InitialInvertedInertiaTensor = calculateInitialInertiaTensor(rb); after creating rb as it is always the same
 
+		//Orientation
+
+		rb.orientation = rb.orientation + timeStep / 2 * Quat(0, rb.angularVelocity.x, 
+			rb.angularVelocity.y, rb.angularVelocity.z) * rb.orientation;
+
+		//Angular momentum
+
+		rb.angularMomentum = rb.angularMomentum * timeStep / q;
+
+		//Rotation Matrix
+
+		calculateRotationMatrix(rb);
+
+		//Inverse Intertia Tensor
+
+		//calculate Initial Inverse Inertia Tensor after creating the rigidbody
+		Mat4 rotationMatrixTransposed = rb.rotationMatrix;
+		rotationMatrixTransposed.transpose();
+		rb.InvertedInertialTensor = rb.rotationMatrix * rb.InitialInvertedInertiaTensor * rotationMatrixTransposed;
+		
 		//Angular velocity
+
 		rb.angularVelocity = rb.InvertedInertialTensor * rb.angularMomentum;
 	}
 }
 
 void RigidBodySystemSimulator::calculateInitialInertiaTensor(RigidBody rb) {
-
+	double x[] = {
+		1/12 * rb.mass * (pow(rb.size.y,2) + pow(rb.size.z,2)),
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		1 / 12 * rb.mass * (pow(rb.size.x,2) + pow(rb.size.z,2)),
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		1 / 12 * rb.mass * (pow(rb.size.x,2) + pow(rb.size.y,2)),
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+	};
+	Mat4 C = Mat4(0.0);
+	C.initFromArray(x);
+	double trace_C = C.value[0][0] + C.value[1][1] + C.value[2][2];
+	double y[] = {
+		trace_C,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		trace_C,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		trace_C,
+		0.0,
+		0.0,
+		0.0,
+		0.0,
+		0.0
+	};
+	Mat4 traceMatrix = Mat4(0.0);
+	traceMatrix.initFromArray(y);
+	Mat4 initialInertiaTensor = traceMatrix - C;
+	rb.InitialInvertedInertiaTensor = initialInertiaTensor.inverse();
 }
 
 void RigidBodySystemSimulator::calculateRotationMatrix(RigidBody rb) {
