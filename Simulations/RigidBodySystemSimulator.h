@@ -7,7 +7,7 @@
 #define TESTCASEUSEDTORUNTEST 2
 
 struct RigidBody {
-	RigidBody(Vec3 position, Vec3 size, float mass)
+	RigidBody(Vec3 position, Vec3 size, int mass)
 		: position(position), size(size), mass(mass) {
 	}
 	Vec3 position;
@@ -15,7 +15,7 @@ struct RigidBody {
 	Vec3 angularVelocity;
 	Vec3 size;  //  (width, depth, height)
 	Vec3 angularMomentum;
-	float mass;
+	int mass;
 	Quat orientation;
 };
 

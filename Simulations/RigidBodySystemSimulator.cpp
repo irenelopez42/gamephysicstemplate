@@ -24,6 +24,8 @@ void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass* DUC)
 }
 void RigidBodySystemSimulator::reset()
 {
+    (this->RigidBodies).clear();
+    (this->forces).clear();
 }
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
@@ -32,10 +34,13 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateConte
 
     for (RigidBody& rb : this->RigidBodies) {
         Mat4 scalingMatrix = Mat4(0.0);
+        scalingMatrix.initScaling(rb.size[0], rb.size[1], rb.size[2]);  //scaling matrix according to size of object
+
         Mat4 translationMatrix = Mat4(0.0);
-        translationMatrix.initTranslation(rb.position[0], rb.position[1], rb.position[2]);
-        scalingMatrix.initScaling(rb.size[0], rb.size[1], rb.size[2]);
-        Mat4 rotationMatrix = rb.orientation.getRotMat();
+        translationMatrix.initTranslation(rb.position[0], rb.position[1], rb.position[2]);  //translation matrix according to position
+
+        Mat4 rotationMatrix = rb.orientation.getRotMat();  // rotation matrix from orientation quaternion
+
         Mat4 worldMatrix = scalingMatrix * rotationMatrix * translationMatrix;
         this->DUC->drawRigidBody(worldMatrix);
         }
@@ -47,6 +52,7 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
     switch (testCase) {
     case 0:
         addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.6, 0.5), 2);
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 1.57079);
         (this->forces).push_back(force(Vec3(1,1,0), Vec3(0.3, 0.5, 0.25)));
         break;
     }
