@@ -1,6 +1,7 @@
 #ifndef RIGIDBODYSYSTEMSIMULATOR_h
 #define RIGIDBODYSYSTEMSIMULATOR_h
 #include "Simulator.h"
+#include "collisionDetect.h"
 //add your header for your rigid body system, for e.g.,
 //#include "rigidBodySystem.h" 
 
@@ -19,6 +20,8 @@ struct RigidBody {
 	Quat orientation;
 	Vec3 totalForce; //  total force acting on center of mass
 	bool isFixed = false;
+	Mat4 worldMatrix;
+	bool canCollide = true;
 };
 
 struct force {
@@ -55,6 +58,7 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i, Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
+	void calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c);
 
 private:
 	// Attributes
