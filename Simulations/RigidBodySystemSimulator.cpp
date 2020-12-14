@@ -1,4 +1,5 @@
 #include "..\Simulations\RigidBodySystemSimulator.h"
+#include <math.h>
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
@@ -32,18 +33,12 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateConte
 	DUC->setUpLighting(Vec3(0, 0, 0), 0.4 * Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 
 	for (RigidBody& rb : this->rigidBodys) {
-		double x[] = { rb.size.x,0.0,0.0,0.0,
-				       0.0,rb.size.y,0.0,0.0,
-				       0.0,0.0,rb.size.z,0.0,
-				       0.0,0.0,0.0,0.0 };
-		double y[] = { 0.0,0.0,0.0,rb.position.x,
-					  0.0,0.0,0.0,rb.position.y,
-					  0.0,0.0,0.0,rb.position.z,
-					  0.0,0.0,0.0,0.0 };
 		rb.scalingMatrix = Mat4(0.0);
 		rb.translationMatrix = Mat4(0.0);
-		rb.scalingMatrix.initFromArray(x);
-		rb.translationMatrix.initFromArray(y);
+		rb.rotationMatrix = Mat4(0.0);
+		rb.rotationMatrix = rb.orientation.getRotMat();
+		rb.scalingMatrix.initScaling(rb.size.x, rb.size.y ,rb.size.z);
+		rb.translationMatrix.initTranslation(rb.position.x, rb.position.y, rb.position.z);
 		rb.worldMatrix = rb.scalingMatrix * rb.rotationMatrix * rb.translationMatrix;
 		DUC->drawRigidBody(rb.worldMatrix);
 	}
@@ -57,6 +52,8 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 	switch (testCase) {
 	case 0:
 		addRigidBody(Vec3(0.0,0.0,0.0), Vec3(1.0, 0.6, 0.5), 2);
+		setOrientationOf(0, Quat(cos(M_PI / 2), 0, 0, sin(M_PI/ 2)));
+		calculateInitialInertiaTensor(rigidBodys[0]);
 		(this->forces).push_back(Force(Vec3(1.0,1.0,1.0), Vec3(0.3, 0.5, 0.25)));
 		break;
 	case 1:
@@ -100,15 +97,16 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//Orientation
 
 		rb.orientation = rb.orientation + timeStep / 2 * Quat(0, rb.angularVelocity.x, 
-			rb.angularVelocity.y, rb.angularVelocity.z) * rb.orientation;
+			rb.angularVelocity.y, rb.angularVelocity.z) * rb.orientation; //does this work? Quaternion multiply!
+		rb.orientation.norm();
 
 		//Angular momentum
 
-		rb.angularMomentum = rb.angularMomentum * timeStep / q;
+		rb.angularMomentum = rb.angularMomentum * timeStep * q;
 
 		//Rotation Matrix
 
-		calculateRotationMatrix(rb);
+		rb.rotationMatrix = rb.orientation.getRotMat();
 
 		//Inverse Intertia Tensor
 
@@ -167,28 +165,6 @@ void RigidBodySystemSimulator::calculateInitialInertiaTensor(RigidBody rb) {
 	traceMatrix.initFromArray(y);
 	Mat4 initialInertiaTensor = traceMatrix - C;
 	rb.InitialInvertedInertiaTensor = initialInertiaTensor.inverse();
-}
-
-void RigidBodySystemSimulator::calculateRotationMatrix(RigidBody rb) {
-	double x[] = { 
-		1.0 - 2*pow(rb.orientation.y,2)-2*pow(rb.orientation.z,2),
-		2*rb.orientation.x * rb.orientation.y - 2*rb.orientation.w * rb.orientation.z,
-		2*rb.orientation.x * rb.orientation.z + 2*rb.orientation.w * rb.orientation.y,
-		0.0,
-		2*rb.orientation.x * rb.orientation.y + 2*rb.orientation.w * rb.orientation.z,
-		1 - 2*pow(rb.orientation.x,2) - 2* pow(rb.orientation.z,2),
-		2 * rb.orientation.y * rb.orientation.z - 2 * rb.orientation.w * rb.orientation.x,
-		0.0,
-		2 * rb.orientation.x * rb.orientation.z - 2 * rb.orientation.w * rb.orientation.y,
-		2 * rb.orientation.y * rb.orientation.z + 2 * rb.orientation.w * rb.orientation.x,
-		1 - 2 * pow(rb.orientation.x,2) - 2 * pow(rb.orientation.y,2),
-		0.0,
-		0.0,
-		0.0,
-		0.0,
-		0.0 };
-	Mat4 rotationMatrix = Mat4(0.0);
-	rotationMatrix.initFromArray(x);
 }
 
 void RigidBodySystemSimulator::onClick(int x, int y)
