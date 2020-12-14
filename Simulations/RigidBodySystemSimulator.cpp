@@ -63,6 +63,21 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
         (this->RigidBodies)[1].linearVelocity = Vec3(-0.2, 0, 0);
         m_fGravity = 0.5;
         break;
+    case 2:
+        addRigidBody(Vec3(-1.0, 0.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 1, 1), 1.57079);
+        (this->RigidBodies)[0].linearVelocity = Vec3(0.2, 0, 0);
+        addRigidBody(Vec3(1.0, 0.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 1, 0), 1.57079);
+        (this->RigidBodies)[1].linearVelocity = Vec3(-0.2, 0, 0);
+        addRigidBody(Vec3(-1.0, 1.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        (this->RigidBodies)[2].orientation = Quat(Vec3(0, 1, 0), 1.57079);
+        (this->RigidBodies)[2].linearVelocity = Vec3(-0.2, 0, 0);
+        addRigidBody(Vec3(1.0, 1.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        (this->RigidBodies)[3].orientation = Quat(Vec3(1, 1, 0), 1.57079);
+        (this->RigidBodies)[3].linearVelocity = Vec3(-0.2, 0, 0);
+        m_fGravity = 0.5;
+        break;
     }
 }
 
