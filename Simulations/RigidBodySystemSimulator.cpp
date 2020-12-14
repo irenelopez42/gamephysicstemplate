@@ -51,14 +51,14 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 	this->reset();
 	switch (testCase) {
 	case 0:
-		addRigidBody(Vec3(0.0,0.0,0.0), Vec3(1.0, 0.6, 0.5), 2);
-		setOrientationOf(0, Quat(cos(M_PI / 2), 0, 0, sin(M_PI/ 2)));
+		addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.6, 0.5), 2);
+		setOrientationOf(0, Quat(0, 0, sin(M_PI / 2), cos(M_PI / 2)));
 		calculateInitialInertiaTensor(rigidBodys[0]);
-		(this->forces).push_back(Force(Vec3(1.0,1.0,1.0), Vec3(0.3, 0.5, 0.25)));
+		(this->forces).push_back(Force(Vec3(1.0, 1.0, 1.0), Vec3(0.3, 0.5, 0.25)));
 		break;
 	case 1:
 		addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.6, 0.5), 2);
-		(this->forces).push_back(Force(Vec3(1.0, 1.0, 1.0), Vec3(0.3, 0.5, 0.25)));
+		//(this->forces).push_back(Force(Vec3(1.0, 1.0, 1.0), Vec3(0.3, 0.5, 0.25)));
 		//set timestep
 		break;
 	case 2:
@@ -96,8 +96,9 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 
 		//Orientation
 
-		rb.orientation = rb.orientation + timeStep / 2 * Quat(0, rb.angularVelocity.x, 
-			rb.angularVelocity.y, rb.angularVelocity.z) * rb.orientation; //does this work? Quaternion multiply!
+		rb.orientation = rb.orientation.operator+(Quat(rb.angularVelocity.x, rb.angularVelocity.y, 
+			rb.angularVelocity.z, 0).operator*(rb.orientation) 
+			* (timeStep / 2));
 		rb.orientation.norm();
 
 		//Angular momentum

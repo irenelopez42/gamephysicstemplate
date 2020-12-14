@@ -58,7 +58,7 @@ public:
 	void setOrientationOf(int i, Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
 	void calculateInitialInertiaTensor(RigidBody rb);
-	// void calculateRotationMatrix(RigidBody rb);
+	//void calculateRotationMatrix(RigidBody rb);
 
 private:
 	// Attributes
