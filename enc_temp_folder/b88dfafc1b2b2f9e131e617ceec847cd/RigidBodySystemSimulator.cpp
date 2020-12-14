@@ -148,39 +148,60 @@ void RigidBodySystemSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, R
         Vec3 velRel = (velA - velB);
         double imp = 0.0;
         //check if Objects are moving towards eachother
-
-        if (dot(velRel, info.normalWorld) < 0) {
-            float impNum = -(1 + c) * dot(velRel, info.normalWorld);
+        float bla = info.normalWorld.x * velRel.x + info.normalWorld.y * velRel.y + info.normalWorld.z * velRel.z;
+        if (bla < 0.0) {
+            
+            float impNum = -(1 + c) * bla;
             Vec3 diagInertiaA = Vec3(1.0 / 12 * rbA.mass * (rbA.size[2] * rbA.size[2] + rbA.size[1] * rbA.size[1]),
                 1.0 / 12 * rbA.mass * (rbA.size[0] * rbA.size[0] + rbA.size[1] * rbA.size[1]),
                 1.0 / 12 * rbA.mass * (rbA.size[0] * rbA.size[0] + rbA.size[2] * rbA.size[2]));
             Vec3 diagInertiaB = Vec3(1.0 / 12 * rbB.mass * (rbB.size[2] * rbB.size[2] + rbB.size[1] * rbB.size[1]),
                 1.0 / 12 * rbB.mass * (rbB.size[0] * rbB.size[0] + rbB.size[1] * rbB.size[1]),
                 1.0 / 12 * rbB.mass * (rbB.size[0] * rbB.size[0] + rbB.size[2] * rbB.size[2]));
-            Vec3 crossproductA = cross(rbA.position, info.normalWorld);
-            Vec3 crossproductB = cross(rbB.position, info.normalWorld);
-            Vec3 rbAMoving = cross(Vec3(crossproductA[0] / diagInertiaA[0], crossproductA[1] / diagInertiaA[1], crossproductA[2] / diagInertiaA[2]), rbA.position);
-            Vec3 rbBMoving = cross(Vec3(crossproductB[0] / diagInertiaB[0], crossproductB[1] / diagInertiaB[1], crossproductB[2] / diagInertiaB[2]), rbB.position);
+            Vec3 crossA = cross(rbA.position, info.normalWorld);
+            Vec3 crossB = cross(rbB.position, info.normalWorld);
+            Vec3 tempA = Vec3(crossA[0] / diagInertiaA[0],
+                crossA[1] / diagInertiaA[1],
+                crossA[2] / diagInertiaA[2]);
+            Vec3 tempB = Vec3(crossB[0] / diagInertiaB[0],
+                crossB[1] / diagInertiaB[1],
+                crossB[2] / diagInertiaB[2]);
+            Vec3 finalA = cross(tempA, rbA.position);
+            Vec3 finalB = cross(tempB, rbB.position);
 
             float impDen = 0.0;
-
-            // denominator is adjusted regarding which rb can actually move. If Fixed then inverse inertia and mass are set to 0
             if (rbA.isFixed && !rbB.isFixed) {
-                impDen = 1 / rbB.mass + dot(rbBMoving, info.normalWorld);
+                float final_final = finalB.x * info.normalWorld.x + finalB.y + info.normalWorld.y + finalB.z + info.normalWorld.z;
+                impDen = 1 / rbB.mass + final_final;
             }
             if (!rbA.isFixed && rbB.isFixed) {
-                impDen = 1 / rbA.mass + dot(rbAMoving, info.normalWorld);
+                float final_final = finalA.x * info.normalWorld.x + finalA.y + info.normalWorld.y + finalA.z + info.normalWorld.z;
+                impDen = 1 / rbA.mass + final_final;
             }
             if (!rbA.isFixed && !rbB.isFixed) {
-                impDen = 1 / rbA.mass + 1 / rbB.mass + dot(rbAMoving + rbBMoving, info.normalWorld);
+                Vec3 final_both = finalA + finalB;
+                float final_final = final_both.x * info.normalWorld.x + final_both.y + info.normalWorld.y + final_both.z + info.normalWorld.z;
+                impDen = 1 / rbA.mass + 1 / rbB.mass + final_final;
             }
+
+          /*  Real impDen =
+                rbA.isFixed == true ? 0 : 1 / rbA.mass +
+                rbB.isFixed == true ? 0.0 : 1 / rbB.mass + (
+                (
+                (rbA.isFixed == true ? Vec3(0,0,0) : finalA) +
+                (rbB.isFixed == true ? Vec3(0,0,0) : finalB)
+                )
+                * info.normalWorld);*/
             
             imp = impNum / impDen;
         }
 
-        // Update Linear Velocity
+        // Update Linear vel
+        
         rbA.linearVelocity += imp * info.normalWorld / rbA.mass;
         rbB.linearVelocity -= imp * info.normalWorld / rbB.mass;
+
+        rbB.position += 2 * rbB.linearVelocity;
 
         //Update  Angular Momentum
         rbA.angularMomentum += cross(rbA.position, (imp * info.normalWorld));
