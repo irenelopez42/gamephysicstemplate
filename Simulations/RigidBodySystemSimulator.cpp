@@ -55,11 +55,12 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
         (this->forces).push_back(force(Vec3(1, 1, 0), Vec3(0.3, 0.5, 0.25), 0));
         break;
     case 1:
-        addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
-        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 1.57079);
-        (this->RigidBodies)[0].isFixed = true;
-        addRigidBody(Vec3(0.0, 3.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        addRigidBody(Vec3(-1.0, 0.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 1, 1), 1.57079);
+        (this->RigidBodies)[0].linearVelocity = Vec3(0.2, 0, 0);
+        addRigidBody(Vec3(1.0, 0.0, 0.0), Vec3(0.5, 0.5, 0.5), 2);
         (this->RigidBodies)[1].orientation = Quat(Vec3(0, 1, 0), 1.57079);
+        (this->RigidBodies)[1].linearVelocity = Vec3(-0.2, 0, 0);
         m_fGravity = 0.5;
         break;
     }
@@ -124,6 +125,13 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
         // Clear force before new time-step
         rb.totalForce = Vec3(0, 0, 0);
 
+        // Floor collision
+        float floor_level = -0.5;
+        if (rb.position.y < floor_level) {
+            rb.position.y = floor_level + (floor_level - rb.position.y);
+            rb.linearVelocity.y *= -1;
+        }
+
     }
 
     // Check for Collisions
@@ -135,13 +143,13 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
     }
 
     (this->forces).clear();
+
 }
 
 void RigidBodySystemSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c) {
     //Check if there is a Collision
     if (info.isValid == true)
     {
-        std::cout << "BOOM";
         //Calculate v_i for the Collision Point for both objects
         Vec3 velA = rbA.linearVelocity + cross(rbA.angularVelocity,info.collisionPointWorld);
         Vec3 velB = rbB.linearVelocity + cross(rbB.angularVelocity,info.collisionPointWorld);
@@ -166,13 +174,13 @@ void RigidBodySystemSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, R
 
             // denominator is adjusted regarding which rb can actually move. If Fixed then inverse inertia and mass are set to 0
             if (rbA.isFixed && !rbB.isFixed) {
-                impDen = 1 / rbB.mass + dot(rbBMoving, info.normalWorld);
+                impDen = 1.0 / rbB.mass + dot(rbBMoving, info.normalWorld);
             }
             if (!rbA.isFixed && rbB.isFixed) {
-                impDen = 1 / rbA.mass + dot(rbAMoving, info.normalWorld);
+                impDen = 1.0 / rbA.mass + dot(rbAMoving, info.normalWorld);
             }
             if (!rbA.isFixed && !rbB.isFixed) {
-                impDen = 1 / rbA.mass + 1 / rbB.mass + dot(rbAMoving + rbBMoving, info.normalWorld);
+                impDen = 1.0 / rbA.mass + 1 / rbB.mass + dot(rbAMoving + rbBMoving, info.normalWorld);
             }
             
             imp = impNum / impDen;
