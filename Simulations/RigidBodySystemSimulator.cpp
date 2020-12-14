@@ -7,6 +7,7 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
     m_mouse = Point2D();
     m_trackmouse = Point2D();
     m_oldtrackmouse = Point2D();
+    m_externalForce = Vec3(0, 0, 0);
 }
 
 const char* RigidBodySystemSimulator::getTestCasesStr()
@@ -58,6 +59,26 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 {
+    // Apply a force to one of the bodies according to mouse movement (move along cameras view plane)
+    Point2D mouseDiff;
+    mouseDiff.x = m_trackmouse.x - m_oldtrackmouse.x;
+    mouseDiff.y = m_trackmouse.y - m_oldtrackmouse.y;
+    if (mouseDiff.x != 0 || mouseDiff.y != 0)
+    {
+        Mat4 worldViewInv = Mat4(DUC->g_camera.GetWorldMatrix() * DUC->g_camera.GetViewMatrix());
+        worldViewInv = worldViewInv.inverse();
+        Vec3 inputView = Vec3((float)mouseDiff.x, (float)-mouseDiff.y, 0);
+        Vec3 inputWorld = worldViewInv.transformVectorNormal(inputView);
+        // find a proper scale!
+        float inputScale = 0.05f;
+        inputWorld = inputWorld * inputScale;
+        m_externalForce = inputWorld;
+        (this->RigidBodies)[0].linearVelocity += timeElapsed * m_externalForce / (this->RigidBodies)[0].mass;
+
+    }
+    else {
+        m_externalForce = Vec3(0,0,0);
+    }
 }
 
 void RigidBodySystemSimulator::simulateTimestep(float timeStep)
@@ -76,11 +97,13 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
             1.0 / 12 * mass * (rb.size[0] * rb.size[0] + rb.size[2] * rb.size[2]));
         // compute angular velocity w = I^(-1) L
         rb.angularVelocity = Vec3(rb.angularMomentum[0] / diagInertia[0],
-            rb.angularMomentum[0] / diagInertia[1],
+            rb.angularMomentum[1] / diagInertia[1],
             rb.angularMomentum[2] / diagInertia[2]);
         // update orientation
-        Quat wQuat = Quat(rb.angularVelocity, 0);
+        Quat wQuat = Quat(rb.angularVelocity, 1.57079);
         rb.orientation += timeStep / 2 * wQuat * rb.orientation;
+        rb.orientation /= sqrtf(rb.orientation.x * rb.orientation.x + rb.orientation.y * rb.orientation.y
+            + rb.orientation.z * rb.orientation.z + rb.orientation.w * rb.orientation.w);
 
         // apply gravity
         rb.totalForce += Vec3(0, 0, -m_fGravity * mass);
