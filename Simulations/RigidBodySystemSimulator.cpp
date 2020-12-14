@@ -116,6 +116,12 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
     for (RigidBody& rb : this->RigidBodies) {
         if (rb.isFixed) continue;
         int mass = rb.mass;
+        // update orientation
+        Quat wQuat = Quat(rb.angularVelocity, 1.57079);
+        rb.orientation += timeStep / 2 * wQuat * rb.orientation;
+        rb.orientation /= sqrtf(rb.orientation.x * rb.orientation.x + rb.orientation.y * rb.orientation.y
+            + rb.orientation.z * rb.orientation.z + rb.orientation.w * rb.orientation.w);
+
         // using inertia tensor assuming uniform distribution of mass along box
         Vec3 diagInertia = Vec3(1.0 / 12 * mass * (rb.size[2] * rb.size[2] + rb.size[1] * rb.size[1]),
             1.0 / 12 * mass * (rb.size[0] * rb.size[0] + rb.size[1] * rb.size[1]),
@@ -124,11 +130,6 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
         rb.angularVelocity = Vec3(rb.angularMomentum[0] / diagInertia[0],
             rb.angularMomentum[1] / diagInertia[1],
             rb.angularMomentum[2] / diagInertia[2]);
-        // update orientation
-        Quat wQuat = Quat(rb.angularVelocity, 1.57079);
-        rb.orientation += timeStep / 2 * wQuat * rb.orientation;
-        rb.orientation /= sqrtf(rb.orientation.x * rb.orientation.x + rb.orientation.y * rb.orientation.y
-            + rb.orientation.z * rb.orientation.z + rb.orientation.w * rb.orientation.w);
 
         // apply gravity
         rb.totalForce += Vec3(0, -m_fGravity * mass, 0);
