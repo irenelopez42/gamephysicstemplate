@@ -11,25 +11,23 @@ struct RigidBody {
 		: position(position), size(size), mass(mass) {
 	}
 	Vec3 position;
-	Vec3 size;
-	int mass;
 	Vec3 linearVelocity;
 	Vec3 angularVelocity;
+	Vec3 size;  //  (width, depth, height)
 	Vec3 angularMomentum;
+	int mass;
 	Quat orientation;
-	Mat4 rotationMatrix;
-	Mat4 translationMatrix;
-	Mat4 scalingMatrix;
-	Mat4 worldMatrix;
-	Mat4 InitialInvertedInertiaTensor;
-	Mat4 InvertedInertialTensor;
+	Vec3 totalForce; //  total force acting on center of mass
+	bool isFixed = false;
 };
-struct Force {
-	Force(Vec3 force, Vec3 position)
-		: force(force), position(position) {
+
+struct force {
+	force(Vec3 forceApplied, Vec3 applicationPoint, int applicationBody)
+		: forceApplied(forceApplied), applicationPoint(applicationPoint), applicationBody(applicationBody) {
 	}
-	Vec3 force;
-	Vec3 position;
+	Vec3 forceApplied;
+	Vec3 applicationPoint;
+	int applicationBody;
 };
 
 class RigidBodySystemSimulator :public Simulator {
@@ -57,17 +55,18 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i, Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
-	void calculateInitialInertiaTensor(RigidBody rb);
-	//void calculateRotationMatrix(RigidBody rb);
 
 private:
 	// Attributes
 	// add your RigidBodySystem data members, for e.g.,
 	// RigidBodySystem * m_pRigidBodySystem; 
-	Vec3 m_externalForce;
+	Vec3 m_CmPosition;
+	Vec3 m_CmVelocity;
+
 	float m_fGravity;
-	std::vector<RigidBody> rigidBodys;
-	std::vector<Force> forces;
+	Vec3 m_externalForce;
+	std::vector<RigidBody> RigidBodies;
+	std::vector<force> forces;
 
 	// UI Attributes
 	Point2D m_mouse;
