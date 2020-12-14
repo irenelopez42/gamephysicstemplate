@@ -6,6 +6,27 @@
 
 #define TESTCASEUSEDTORUNTEST 2
 
+struct RigidBody {
+	RigidBody(Vec3 position, Vec3 size, float mass)
+		: position(position), size(size), mass(mass) {
+	}
+	Vec3 position;
+	Vec3 linearVelocity;
+	Vec3 angularVelocity;
+	Vec3 size;  //  (width, depth, height)
+	Vec3 angularMomentum;
+	float mass;
+	Quat orientation;
+};
+
+struct force {
+	force(Vec3 forceApplied, Vec3 applicationPoint)
+		: forceApplied(forceApplied), applicationPoint(applicationPoint) {
+	}
+	Vec3 forceApplied;
+	Vec3 applicationPoint;
+};
+
 class RigidBodySystemSimulator:public Simulator{
 public:
 	// Construtors
@@ -36,7 +57,14 @@ private:
 	// Attributes
 	// add your RigidBodySystem data members, for e.g.,
 	// RigidBodySystem * m_pRigidBodySystem; 
+	float m_fMass;
+	Vec3 m_CmPosition;
+	Vec3 m_CmVelocity;
+
+	float m_fGravity;
 	Vec3 m_externalForce;
+	std::vector<RigidBody> RigidBodies;
+	std::vector<force> forces;
 
 	// UI Attributes
 	Point2D m_mouse;
