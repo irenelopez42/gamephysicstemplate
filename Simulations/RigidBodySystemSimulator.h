@@ -17,14 +17,16 @@ struct RigidBody {
 	Vec3 angularMomentum;
 	int mass;
 	Quat orientation;
+	Vec3 totalForce; //  total force acting on center of mass
 };
 
 struct force {
-	force(Vec3 forceApplied, Vec3 applicationPoint)
-		: forceApplied(forceApplied), applicationPoint(applicationPoint) {
+	force(Vec3 forceApplied, Vec3 applicationPoint, int applicationBody)
+		: forceApplied(forceApplied), applicationPoint(applicationPoint), applicationBody(applicationBody){
 	}
 	Vec3 forceApplied;
 	Vec3 applicationPoint;
+	int applicationBody;
 };
 
 class RigidBodySystemSimulator:public Simulator{
@@ -57,7 +59,6 @@ private:
 	// Attributes
 	// add your RigidBodySystem data members, for e.g.,
 	// RigidBodySystem * m_pRigidBodySystem; 
-	float m_fMass;
 	Vec3 m_CmPosition;
 	Vec3 m_CmVelocity;
 

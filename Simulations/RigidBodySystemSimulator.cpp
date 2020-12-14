@@ -2,7 +2,6 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-    m_fMass = 2;
     m_fGravity = 0;
 
     m_mouse = Point2D();
@@ -18,7 +17,6 @@ const char* RigidBodySystemSimulator::getTestCasesStr()
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass* DUC)
 {
     this->DUC = DUC;
-    TwAddVarRW(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "min=0.1 max=100.0 step=0.1");
     //TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "min=0.00 max=5.00 step=0.05");
     TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "min=0.00 max=100.00 step=0.01");
 }
@@ -53,7 +51,7 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
     case 0:
         addRigidBody(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.6, 0.5), 2);
         (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 1.57079);
-        (this->forces).push_back(force(Vec3(1,1,0), Vec3(0.3, 0.5, 0.25)));
+        (this->forces).push_back(force(Vec3(1,1,0), Vec3(0.3, 0.5, 0.25), 0));
         break;
     }
 }
@@ -64,10 +62,37 @@ void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 {
-    //for (Force& f_i : this->forces) {
-       // F = F + f_i.force;
-       // q = q + cross(f_i.position, f_i.force);
-    //}
+    for (force& f_i : this->forces) {
+        Vec3 q = cross(f_i.applicationPoint, f_i.forceApplied);
+        (this->RigidBodies)[f_i.applicationBody].angularMomentum += timeStep * q;
+        (this->RigidBodies)[f_i.applicationBody].totalForce += f_i.forceApplied;
+    }
+
+    for (RigidBody& rb : this->RigidBodies) {
+        int mass = rb.mass;
+        // using inertia tensor assuming uniform distribution of mass along box
+        Vec3 diagInertia = Vec3(1.0 / 12 * mass * (rb.size[2] * rb.size[2] + rb.size[1] * rb.size[1]),
+            1.0 / 12 * mass * (rb.size[0] * rb.size[0] + rb.size[1] * rb.size[1]),
+            1.0 / 12 * mass * (rb.size[0] * rb.size[0] + rb.size[2] * rb.size[2]));
+        // compute angular velocity w = I^(-1) L
+        rb.angularVelocity = Vec3(rb.angularMomentum[0] / diagInertia[0],
+            rb.angularMomentum[0] / diagInertia[1],
+            rb.angularMomentum[2] / diagInertia[2]);
+        // update orientation
+        Quat wQuat = Quat(rb.angularVelocity, 0);
+        rb.orientation += timeStep / 2 * wQuat * rb.orientation;
+
+        // apply gravity
+        rb.totalForce += Vec3(0, 0, -m_fGravity * mass);
+
+        // update velocity and position of center of mass
+        rb.position += timeStep * rb.linearVelocity;
+        rb.linearVelocity += timeStep * rb.totalForce / mass;
+
+        // Clear force before new time-step
+        rb.totalForce = Vec3(0, 0, 0);
+    }
+    (this->forces).clear();
 }
 
 void RigidBodySystemSimulator::onClick(int x, int y)
