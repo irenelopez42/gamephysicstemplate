@@ -17,7 +17,12 @@ DiffusionSimulator::DiffusionSimulator()
 	T = new Grid(m_sizeM, m_sizeN);
 	for (int i = 0; i < m_sizeM; i++) {
 		for (int j = 0; j < m_sizeN; j++) {
-			T->vect2d[i][j] = 0;
+			if (i == 0 || j == 0 || i == m_sizeM - 1 || j == m_sizeN - 1) {
+				T->vect2d[i][j] = 0;
+			}
+			else {
+				T->vect2d[i][j] = 1;
+			}
 		}
 	}
 	// to be implemented
@@ -35,7 +40,12 @@ void DiffusionSimulator::reset(){
 		m_sizeN = 16;
 		for (int i = 0; i < m_sizeM; i++) {
 			for (int j = 0; j < m_sizeN; j++) {
-				T->vect2d[i][j] = 0;
+				if (i == 0 || j == 0 || i == m_sizeM - 1 || j == m_sizeN - 1) {
+					T->vect2d[i][j] = 0;
+				}
+				else {
+					T->vect2d[i][j] = 1;
+				}
 			}
 		}
 
