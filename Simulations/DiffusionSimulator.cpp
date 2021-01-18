@@ -152,7 +152,6 @@ void DiffusionSimulator::simulateTimestep(float timeStep)
 	switch (m_iTestCase)
 	{
 	case 0:
-		if (T != nullptr) delete T;
 		T = diffuseTemperatureExplicit(timeStep);
 		break;
 	case 1:
@@ -167,7 +166,7 @@ void DiffusionSimulator::drawObjects()
 	Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
 	for (int i = 0; i < m_sizeM; i++) {
 		for (int j = 0; j < m_sizeN; j++) {
-			this->DUC->drawSphere(Vec3(i, j, 0), scale);
+			this->DUC->drawSphere(Vec3(-0.5 + i / 10.0, -0.5 + j / 10.0, 0), scale);
 		}
 	}
 	
