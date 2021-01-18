@@ -81,8 +81,8 @@ Grid* DiffusionSimulator::diffuseTemperatureExplicit(float timeStep) {
 		for (int j = 1; j < n - 1; j++) {
 			float alpha = 1;
 			newT->vect2d[i][j] = T->vect2d[i][j] + timeStep * alpha * (
-				(T->vect2d[i+1][j] - 2*T->vect2d[i][j]+T->vect2d[i-1][j] / pow(1,2)) +
-				(T->vect2d[i][j+1] - 2*T->vect2d[i][j]+T->vect2d[i][j-1] / pow(1,2))
+				((T->vect2d[i+1][j] - 2*T->vect2d[i][j]+T->vect2d[i-1][j]) / pow(1,2)) +
+				((T->vect2d[i][j+1] - 2*T->vect2d[i][j]+T->vect2d[i][j-1]) / pow(1,2))
 			);
 		}
 	}
