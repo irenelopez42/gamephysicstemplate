@@ -2,8 +2,8 @@
 #include "pcgsolver.h"
 using namespace std;
 
-Grid::Grid() {
-}
+//Grid::Grid() {
+//}
 
 
 DiffusionSimulator::DiffusionSimulator()
@@ -12,6 +12,14 @@ DiffusionSimulator::DiffusionSimulator()
 	m_vfMovableObjectPos = Vec3();
 	m_vfMovableObjectFinalPos = Vec3();
 	m_vfRotate = Vec3();
+	m_sizeM = 16;
+	m_sizeN = 16;
+	T = new Grid(m_sizeM, m_sizeN);
+	for (int i = 0; i < m_sizeM; i++) {
+		for (int j = 0; j < m_sizeN; j++) {
+			T->vect2d[i][j] = 0;
+		}
+	}
 	// to be implemented
 }
 
@@ -23,6 +31,13 @@ void DiffusionSimulator::reset(){
 		m_mouse.x = m_mouse.y = 0;
 		m_trackmouse.x = m_trackmouse.y = 0;
 		m_oldtrackmouse.x = m_oldtrackmouse.y = 0;
+		m_sizeM = 16;
+		m_sizeN = 16;
+		for (int i = 0; i < m_sizeM; i++) {
+			for (int j = 0; j < m_sizeN; j++) {
+				T->vect2d[i][j] = 0;
+			}
+		}
 
 }
 
@@ -30,6 +45,8 @@ void DiffusionSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
 	// to be implemented
+	//TwAddVarRW(DUC->g_pTweakBar, "Size m", TW_TYPE_FLOAT, &m_sizeM, "min=2 max=30 step=1");
+	//TwAddVarRW(DUC->g_pTweakBar, "Size n", TW_TYPE_FLOAT, &m_sizeN, "min=2 max=30 step=1");
 }
 
 void DiffusionSimulator::notifyCaseChanged(int testCase)
@@ -54,10 +71,18 @@ void DiffusionSimulator::notifyCaseChanged(int testCase)
 	}
 }
 
-Grid* DiffusionSimulator::diffuseTemperatureExplicit() {//add your own parameters
-	Grid* newT = new Grid();
-	// to be implemented
-	//make sure that the temperature in boundary cells stays zero
+Grid* DiffusionSimulator::diffuseTemperatureExplicit(float timeStep) {//add your own parameters
+	int m = T->m;
+	int n = T->n;
+	Grid* newT = new Grid(m,n);
+	
+	for (int i = 1; i < m - 1; i++) {
+		for (int j = 1; j < n - 1; j++) {
+			//coefficient missing, needs to replace the '1'
+			newT->vect2d[i][j] = T->vect2d[i][j] + timeStep * 1 * ((T->vect2d[i+1][j]-2*T->vect2d[i][j]+T->vect2d[i-1][j]/ pow(1,2)) + (T->vect2d[i][j+1]-2*T->vect2d[i][j]+T->vect2d[i][j-1])/ pow(1,2));
+		}
+	}
+	
 	return newT;
 }
 
@@ -124,7 +149,7 @@ void DiffusionSimulator::simulateTimestep(float timeStep)
 	switch (m_iTestCase)
 	{
 	case 0:
-		T = diffuseTemperatureExplicit();
+		T = diffuseTemperatureExplicit(timeStep);
 		break;
 	case 1:
 		diffuseTemperatureImplicit();
@@ -134,8 +159,16 @@ void DiffusionSimulator::simulateTimestep(float timeStep)
 
 void DiffusionSimulator::drawObjects()
 {
-	// to be implemented
 	//visualization
+	Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
+	for (int i = 0; i < m_sizeM; i++) {
+		for (int j = 0; j < m_sizeN; j++) {
+			this->DUC->drawSphere(Vec3(i, j, 0), scale);
+		}
+	}
+	
+
+
 }
 
 

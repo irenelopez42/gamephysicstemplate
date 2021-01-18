@@ -8,8 +8,13 @@
 class Grid {
 public:
 	// Construtors
-	Grid();
-
+	Grid(int m, int n)
+		: m(m), n(n), vect2d(m, vector<int> (n)) 
+	{
+	}
+	vector<vector<int>> vect2d;
+	int m;
+	int n;
 
 private:
 	// Attributes
@@ -34,7 +39,7 @@ public:
 	void onMouse(int x, int y);
 	// Specific Functions
 	void drawObjects();
-	Grid* diffuseTemperatureExplicit();
+	Grid* diffuseTemperatureExplicit(float timeStep);
 	void diffuseTemperatureImplicit();
 
 private:
@@ -42,10 +47,13 @@ private:
 	Vec3  m_vfMovableObjectPos;
 	Vec3  m_vfMovableObjectFinalPos;
 	Vec3  m_vfRotate;
+	int m_sizeM;
+	int m_sizeN;
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 	Grid *T; //save results of every time step
+	int grid_size;
 };
 
 #endif
