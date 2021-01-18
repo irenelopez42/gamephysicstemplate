@@ -71,15 +71,19 @@ void DiffusionSimulator::notifyCaseChanged(int testCase)
 	}
 }
 
-Grid* DiffusionSimulator::diffuseTemperatureExplicit(float timeStep) {//add your own parameters
+Grid* DiffusionSimulator::diffuseTemperatureExplicit(float timeStep) {
+	//add your own parameters
 	int m = T->m;
 	int n = T->n;
 	Grid* newT = new Grid(m,n);
 	
 	for (int i = 1; i < m - 1; i++) {
 		for (int j = 1; j < n - 1; j++) {
-			//coefficient missing, needs to replace the '1'
-			newT->vect2d[i][j] = T->vect2d[i][j] + timeStep * 1 * ((T->vect2d[i+1][j]-2*T->vect2d[i][j]+T->vect2d[i-1][j]/ pow(1,2)) + (T->vect2d[i][j+1]-2*T->vect2d[i][j]+T->vect2d[i][j-1])/ pow(1,2));
+			float alpha = 1;
+			newT->vect2d[i][j] = T->vect2d[i][j] + timeStep * alpha * (
+				(T->vect2d[i+1][j] - 2*T->vect2d[i][j]+T->vect2d[i-1][j] / pow(1,2)) +
+				(T->vect2d[i][j+1] - 2*T->vect2d[i][j]+T->vect2d[i][j-1] / pow(1,2))
+			);
 		}
 	}
 	
@@ -144,11 +148,11 @@ void DiffusionSimulator::diffuseTemperatureImplicit() {//add your own parameters
 
 void DiffusionSimulator::simulateTimestep(float timeStep)
 {
-	// to be implemented
 	// update current setup for each frame
 	switch (m_iTestCase)
 	{
 	case 0:
+		if (T != nullptr) delete T;
 		T = diffuseTemperatureExplicit(timeStep);
 		break;
 	case 1:

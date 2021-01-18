@@ -9,10 +9,10 @@ class Grid {
 public:
 	// Construtors
 	Grid(int m, int n)
-		: m(m), n(n), vect2d(m, vector<int> (n)) 
+		: m(m), n(n), vect2d(m, vector<double> (n)) 
 	{
 	}
-	vector<vector<int>> vect2d;
+	vector<vector<double>> vect2d;
 	int m;
 	int n;
 
