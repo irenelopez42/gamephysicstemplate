@@ -1,6 +1,6 @@
-#include "MassSpringSystemSimulator.h"
+#include "OpenProjectSimulator.h"
 
-MassSpringSystemSimulator::MassSpringSystemSimulator() {
+OpenProjectSimulator::OpenProjectSimulator() {
     m_iIntegrator = EULER;
     m_fMass = 10;
     m_fStiffness = 40;
@@ -16,18 +16,18 @@ MassSpringSystemSimulator::MassSpringSystemSimulator() {
     m_oldtrackmouse = Point2D();
 }
 
-const char* MassSpringSystemSimulator::getTestCasesStr()
+const char* OpenProjectSimulator::getTestCasesStr()
 {
     return "2-point, Complex";
 }
 
 
-const char* MassSpringSystemSimulator::getIntegratorStr()
+const char* OpenProjectSimulator::getIntegratorStr()
 {
     return "Euler, Leapfrog, Midpoint";
 }
 
-void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass* DUC)
+void OpenProjectSimulator::initUI(DrawingUtilitiesClass* DUC)
 {
     this->DUC = DUC;
     TwType TW_TYPE_INTEGRATOR = TwDefineEnumFromString("Integrator", getIntegratorStr());
@@ -39,13 +39,13 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass* DUC)
     TwAddVarRW(DUC->g_pTweakBar, "Complex: Edge/Initial", TW_TYPE_FLOAT, &m_fComplexInitialRatio, "min=0.01 max=100.00 step=0.01");
 }
 
-void MassSpringSystemSimulator::reset()
+void OpenProjectSimulator::reset()
 {
     (this->springs).clear();
     (this->massPoints).clear();
 }
 
-void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
+void OpenProjectSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 {
     Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
     for (MassPoint &mp : this->massPoints) {
@@ -59,7 +59,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
     this->DUC->endLine();
 }
 
-void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
+void OpenProjectSimulator::notifyCaseChanged(int testCase)
 {
     this->reset();
     switch (testCase) {
@@ -130,7 +130,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
     }
 }
 
-void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
+void OpenProjectSimulator::externalForcesCalculations(float timeElapsed)
 {
     // Apply the mouse deltas to g_vfMovableObjectPos (move along cameras view plane)
     Point2D mouseDiff;
@@ -152,7 +152,7 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
     }
 }
 
-void MassSpringSystemSimulator::computeForces()
+void OpenProjectSimulator::computeForces()
 {
     for (MassPoint& mp : this->massPoints) {
         mp.force = Vec3(0, 0, 0);
@@ -175,7 +175,7 @@ void MassSpringSystemSimulator::computeForces()
     }
 }
 
-void MassSpringSystemSimulator::simulateTimestep(float timeStep)
+void OpenProjectSimulator::simulateTimestep(float timeStep)
 {
     this->computeForces();
         // Integrate forces into motion
@@ -224,13 +224,13 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
     }
 }
 
-void MassSpringSystemSimulator::onClick(int x, int y)
+void OpenProjectSimulator::onClick(int x, int y)
 {
     m_trackmouse.x = x;
     m_trackmouse.y = y;
 }
 
-void MassSpringSystemSimulator::onMouse(int x, int y)
+void OpenProjectSimulator::onMouse(int x, int y)
 {
     m_oldtrackmouse.x = x;
     m_oldtrackmouse.y = y;
@@ -238,55 +238,55 @@ void MassSpringSystemSimulator::onMouse(int x, int y)
     m_trackmouse.y = y;
 }
 
-void MassSpringSystemSimulator::setMass(float mass)
+void OpenProjectSimulator::setMass(float mass)
 {
     m_fMass = mass;
 }
 
-void MassSpringSystemSimulator::setStiffness(float stiffness)
+void OpenProjectSimulator::setStiffness(float stiffness)
 {
     m_fStiffness = stiffness;
 }
 
-void MassSpringSystemSimulator::setDampingFactor(float damping)
+void OpenProjectSimulator::setDampingFactor(float damping)
 {
     m_fDamping = damping;
 }
 
-int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool isFixed)
+int OpenProjectSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool isFixed)
 {
     int index = (this->massPoints).size();
     (this->massPoints).push_back(MassPoint(position, velocity, isFixed));
     return index;
 }
 
-void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
+void OpenProjectSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
 {
     (this->springs).push_back(
         Spring((this->massPoints)[masspoint1], (this->massPoints)[masspoint2], initialLength)
     );
 }
 
-int MassSpringSystemSimulator::getNumberOfMassPoints() const
+int OpenProjectSimulator::getNumberOfMassPoints() const
 {
     return massPoints.size();
 }
 
-int MassSpringSystemSimulator::getNumberOfSprings() const
+int OpenProjectSimulator::getNumberOfSprings() const
 {
     return springs.size();
 }
 
-Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index) const
+Vec3 OpenProjectSimulator::getPositionOfMassPoint(int index) const
 {
     return (this->massPoints)[index].position;
 }
 
-Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index) const
+Vec3 OpenProjectSimulator::getVelocityOfMassPoint(int index) const
 {
     return (this->massPoints)[index].velocity;
 }
 
-void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
+void OpenProjectSimulator::applyExternalForce(Vec3 force)
 {
 }

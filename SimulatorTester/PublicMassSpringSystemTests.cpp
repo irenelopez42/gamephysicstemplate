@@ -1,5 +1,5 @@
 #include "CppUnitTest.h"
-#include "MassSpringSystemSimulator.h"
+#include "OpenProjectSimulator.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -8,9 +8,9 @@ namespace SimulatorTester
 	TEST_CLASS(PublicMassSpringSystemTests)
 	{
 	public: 
-		void testSceneSetup(MassSpringSystemSimulator* &msss) {
+		void testSceneSetup(OpenProjectSimulator* &msss) {
 			if (msss) delete msss;
-			msss = new MassSpringSystemSimulator();
+			msss = new OpenProjectSimulator();
 			msss->setMass(10.0f);
 			msss->setDampingFactor(0.0f);
 			msss->setStiffness(40.0f);
@@ -25,20 +25,20 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestNumberofMassPoints)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			int num = msss->getNumberOfMassPoints();
 			Assert::AreEqual(2.0f,(float)num,0.0001f,L"Number of Mass Points is not equal to 2",LINE_INFO());
 		}
 		TEST_METHOD(TestNumberofSprings)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			Assert::AreEqual(1.0f,(float)msss->getNumberOfSprings(),0.0001f,L"Number of Mass Points is not equal to 1",LINE_INFO());
 		}
 		TEST_METHOD(TestPositionOfMassPointsInitially)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
 			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
@@ -50,7 +50,7 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestPositionOfMassPointsAfter10TimeStepEuler)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			msss->setIntegrator(EULER);
 			for(int i =0; i <10; i++)
@@ -65,7 +65,7 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestPositionOfMassPointsAfter10TimeStepMidPoint)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			msss->setIntegrator(MIDPOINT);
 			for(int i =0; i <10; i++)
@@ -80,7 +80,7 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestVelocityOfMassPointsInitially)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			Assert::AreEqual(-1.0f,(float)msss->getVelocityOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
 			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
@@ -92,7 +92,7 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestVelocityOfMassPointsAfter10TimeStepEuler)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			msss->setIntegrator(EULER);
 			for(int i =0; i <10; i++)
@@ -107,7 +107,7 @@ namespace SimulatorTester
 
 		TEST_METHOD(TestVelocityOfMassPointsAfter10TimeStepMidPoint)
 		{
-			MassSpringSystemSimulator * msss = NULL;
+			OpenProjectSimulator * msss = NULL;
 			testSceneSetup(msss);
 			msss->setIntegrator(MIDPOINT);
 			for(int i =0; i <10; i++)

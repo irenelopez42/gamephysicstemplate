@@ -1,5 +1,5 @@
-#ifndef MASSSPRINGSYSTEMSIMULATOR_h
-#define MASSSPRINGSYSTEMSIMULATOR_h
+#ifndef OpenProjectSimulator_h
+#define OpenProjectSimulator_h
 #include "Simulator.h"
 
 // Do Not Change
@@ -27,10 +27,10 @@ struct Spring {
 };
 
 
-class MassSpringSystemSimulator:public Simulator{
+class OpenProjectSimulator:public Simulator{
 public:
     // Construtors
-    MassSpringSystemSimulator();
+    OpenProjectSimulator();
     
     // UI Functions
     void initUI(DrawingUtilitiesClass * DUC);
