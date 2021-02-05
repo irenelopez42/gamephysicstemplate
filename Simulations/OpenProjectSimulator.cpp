@@ -39,16 +39,14 @@ void OpenProjectSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 {
     this->DUC->setUpLighting(Vec3(0, 0, 0), 0.4 * Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 
-    Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
-    for (MassPoint& mp : this->massPoints) {
-        this->DUC->drawSphere(mp.position, scale);
-    }
-
-    this->DUC->beginLine();
+    Vec3 scale1 = Vec3(0.1f, 0.1f, 0.1f);
+    Vec3 scale2 = Vec3(0.01f, 0.01f, 0.01f);
     for (Spring& s : this->springs) {
+        this->DUC->drawSphere(s.mp1.position, scale1);
+        this->DUC->beginLine();
         this->DUC->drawLine(s.mp1.position, m_springColor, s.mp2.position, m_springColor);
+        this->DUC->endLine();
     }
-    this->DUC->endLine();
 
     for (RigidBody& rb : this->RigidBodies) {
         Mat4 scalingMatrix = Mat4(0.0);
@@ -70,8 +68,8 @@ void OpenProjectSimulator::notifyCaseChanged(int testCase)
     switch (testCase) {
     case 0:
         addSpring(
+            addMassPoint({ -1.5, 0, 0 }, { 0, 0, 0 }, false),
             addMassPoint({ -1.0, 0, 0 }, { 0, 0, 0 }, true),
-            addMassPoint({ -1.0, 0.5, 0 }, { 0, 0, 0 }, false),
             0.5
         );
 
@@ -111,7 +109,7 @@ void OpenProjectSimulator::externalForcesCalculations(float timeElapsed)
         float inputScale = 0.05f;
         inputWorld = inputWorld * inputScale;
         m_externalForce = inputWorld;
-        (this->massPoints)[0].velocity += timeElapsed * m_externalForce /m_fMass;
+        (this->massPoints)[1].velocity += timeElapsed * m_externalForce /m_fMass;
 
     }
     else {
@@ -210,7 +208,6 @@ void OpenProjectSimulator::simulateTimestep(float timeStep)
 
     }
 
-    // Check for Collisions
     for (int i = 0; i < RigidBodies.size(); i++) {
         for (int j = i + 1; j < RigidBodies.size(); j++) {
             CollisionInfo collisionInfo = checkCollisionSAT(RigidBodies[i].worldMatrix, RigidBodies[j].worldMatrix);
