@@ -1,6 +1,7 @@
 #ifndef OpenProjectSimulator_h
 #define OpenProjectSimulator_h
 #include "Simulator.h"
+#include "collisionDetect.h"
 
 struct MassPoint {
     MassPoint(Vec3 position, Vec3 velocity, bool isFixed)
@@ -20,6 +21,32 @@ struct Spring {
     float initialLength;
 };
 
+struct RigidBody {
+    RigidBody(Vec3 position, Vec3 size, int mass)
+        : position(position), size(size), mass(mass) {
+    }
+    Vec3 position;
+    Vec3 linearVelocity;
+    Vec3 angularVelocity;
+    Vec3 size;  //  (width, depth, height)
+    Vec3 angularMomentum;
+    int mass;
+    Quat orientation;
+    Vec3 totalForce; //  total force acting on center of mass
+    bool isFixed = false;
+    Mat4 worldMatrix;
+    bool canCollide = true;
+};
+
+struct force {
+    force(Vec3 forceApplied, Vec3 applicationPoint, int applicationBody)
+        : forceApplied(forceApplied), applicationPoint(applicationPoint), applicationBody(applicationBody) {
+    }
+    Vec3 forceApplied;
+    Vec3 applicationPoint;
+    int applicationBody;
+};
+
 
 class OpenProjectSimulator:public Simulator{
 public:
@@ -34,6 +61,8 @@ public:
     void externalForcesCalculations(float timeElapsed);
     void computeForces();
     void simulateTimestep(float timeStep);
+    void addRigidBody(Vec3 position, Vec3 size, int mass);
+    void calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c);
     void onClick(int x, int y);
     void onMouse(int x, int y);
 
@@ -42,7 +71,16 @@ public:
     void applyExternalForce(Vec3 force);
     
 private:
-    // Data Attributes
+    // Attributes
+    // add your RigidBodySystem data members, for e.g.,
+    // RigidBodySystem * m_pRigidBodySystem; 
+    Vec3 m_CmPosition;
+    Vec3 m_CmVelocity;
+
+    float m_fGravity;
+    Vec3 m_externalForce;
+    std::vector<RigidBody> RigidBodies;
+    std::vector<force> forces;
 
     // UI Attributes
     Point2D m_mouse;
