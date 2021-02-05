@@ -22,10 +22,15 @@ void OpenProjectSimulator::initUI(DrawingUtilitiesClass* DUC)
 {
     this->DUC = DUC;
     TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "min=0.00 max=100.00 step=0.01");
+    TwAddVarRW(DUC->g_pTweakBar, "Mass Spheres", TW_TYPE_FLOAT, &m_fMass, "min=0.1 max=100.0 step=0.1");
+    TwAddVarRW(DUC->g_pTweakBar, "Stiffness", TW_TYPE_FLOAT, &m_fStiffness, "min=0.0 max=500 step=0.5");
+    TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "min=0.00 max=5.00 step=0.05");
 }
 
 void OpenProjectSimulator::reset()
 {
+    (this->springs).clear();
+    (this->massPoints).clear();
     (this->RigidBodies).clear();
     (this->forces).clear();
 }
@@ -70,20 +75,20 @@ void OpenProjectSimulator::notifyCaseChanged(int testCase)
             0.5
         );
 
-        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
         (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
         (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
-        addRigidBody(Vec3(1.5, 0.301, 0.0), Vec3(2.0, 0.6, 0.5), 2);
+        addRigidBody(Vec3(1.5, -0.124, 0.0), Vec3(1.8, 0.25, 0.5), 2);
         (this->RigidBodies)[2].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
-        addRigidBody(Vec3(2.0, 1.101, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        addRigidBody(Vec3(2.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
         (this->RigidBodies)[3].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(1.0, 1.101, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        addRigidBody(Vec3(1.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
         (this->RigidBodies)[4].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
-        addRigidBody(Vec3(1.5, 1.902, 0.0), Vec3(2.0, 0.6, 0.5), 2);
+        addRigidBody(Vec3(1.5, 0.627, 0.0), Vec3(1.8, 0.25, 0.5), 2);
         (this->RigidBodies)[5].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
         break;
