@@ -61,6 +61,8 @@ public:
     void externalForcesCalculations(float timeElapsed);
     void computeForces();
     void simulateTimestep(float timeStep);
+    int addMassPoint(Vec3 position, Vec3 velocity, bool isFixed);
+    void addSpring(int masspoint1, int masspoint2, float initialLength);
     void addRigidBody(Vec3 position, Vec3 size, int mass);
     void calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c);
     void onClick(int x, int y);
@@ -76,13 +78,19 @@ private:
     // RigidBodySystem * m_pRigidBodySystem; 
     Vec3 m_CmPosition;
     Vec3 m_CmVelocity;
-
+    float m_fMass;
+    float m_fStiffness;
+    float m_fDamping;
     float m_fGravity;
     Vec3 m_externalForce;
+
+    std::vector<MassPoint> massPoints;
+    std::vector<Spring> springs;
     std::vector<RigidBody> RigidBodies;
     std::vector<force> forces;
 
     // UI Attributes
+    Vec3 m_springColor;
     Point2D m_mouse;
     Point2D m_trackmouse;
     Point2D m_oldtrackmouse;

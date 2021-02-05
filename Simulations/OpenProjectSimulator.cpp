@@ -2,6 +2,11 @@
 
 OpenProjectSimulator::OpenProjectSimulator() {
     m_fGravity = 0.0;
+    m_fMass = 10;
+    m_fStiffness = 40;
+    m_fDamping = 0;
+
+    m_springColor = Vec3(50, 50, 50);
     m_mouse = Point2D();
     m_trackmouse = Point2D();
     m_oldtrackmouse = Point2D();
@@ -29,6 +34,17 @@ void OpenProjectSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 {
     this->DUC->setUpLighting(Vec3(0, 0, 0), 0.4 * Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 
+    Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
+    for (MassPoint& mp : this->massPoints) {
+        this->DUC->drawSphere(mp.position, scale);
+    }
+
+    this->DUC->beginLine();
+    for (Spring& s : this->springs) {
+        this->DUC->drawLine(s.mp1.position, m_springColor, s.mp2.position, m_springColor);
+    }
+    this->DUC->endLine();
+
     for (RigidBody& rb : this->RigidBodies) {
         Mat4 scalingMatrix = Mat4(0.0);
         scalingMatrix.initScaling(rb.size[0], rb.size[1], rb.size[2]);  //scaling matrix according to size of object
@@ -48,18 +64,24 @@ void OpenProjectSimulator::notifyCaseChanged(int testCase)
     this->reset();
     switch (testCase) {
     case 0:
-        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(1.0, 0.6, 0.5), 2);
-        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 1.57079);
-        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(1.0, 0.6, 0.5), 2);
-        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 1.57079);
+        addSpring(
+            addMassPoint({ -1.0, 0, 0 }, { 0, 0, 0 }, true),
+            addMassPoint({ -1.0, 0.5, 0 }, { 0, 0, 0 }, false),
+            0.5
+        );
+
+        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
         addRigidBody(Vec3(1.5, 0.301, 0.0), Vec3(2.0, 0.6, 0.5), 2);
         (this->RigidBodies)[2].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
-        addRigidBody(Vec3(2.0, 1.101, 0.0), Vec3(1.0, 0.6, 0.5), 2);
-        (this->RigidBodies)[3].orientation = Quat(Vec3(0, 0, 1), 1.57079);
-        addRigidBody(Vec3(1.0, 1.101, 0.0), Vec3(1.0, 0.6, 0.5), 2);
-        (this->RigidBodies)[4].orientation = Quat(Vec3(0, 0, 1), 1.57079);
+        addRigidBody(Vec3(2.0, 1.101, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        (this->RigidBodies)[3].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(1.0, 1.101, 0.0), Vec3(0.6, 1.0, 0.5), 2);
+        (this->RigidBodies)[4].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
         addRigidBody(Vec3(1.5, 1.902, 0.0), Vec3(2.0, 0.6, 0.5), 2);
         (this->RigidBodies)[5].orientation = Quat(Vec3(0, 0, 1), 0.0);
@@ -84,7 +106,7 @@ void OpenProjectSimulator::externalForcesCalculations(float timeElapsed)
         float inputScale = 0.05f;
         inputWorld = inputWorld * inputScale;
         m_externalForce = inputWorld;
-        (this->RigidBodies)[0].linearVelocity += timeElapsed * m_externalForce / (this->RigidBodies)[0].mass;
+        (this->massPoints)[0].velocity += timeElapsed * m_externalForce /m_fMass;
 
     }
     else {
@@ -94,10 +116,52 @@ void OpenProjectSimulator::externalForcesCalculations(float timeElapsed)
 
 void OpenProjectSimulator::computeForces()
 {
+    for (MassPoint& mp : this->massPoints) {
+        mp.force = Vec3(0, 0, 0);
+        // Gravity
+        mp.force += Vec3(0, -m_fGravity, 0) * m_fMass;
+        // Damping
+        mp.force += mp.velocity * -m_fDamping;
+    }
+
+    for (Spring& s : this->springs) {
+        Vec3 mid_X_mp1, mid_X_mp2;
+
+        Vec3 differenceVector = (s.mp1.position - s.mp2.position);
+        float distance = sqrt(s.mp1.position.squaredDistanceTo(s.mp2.position));
+        Vec3 elasticForce = (differenceVector / distance) * ((distance - (double)s.initialLength) * -m_fStiffness);
+
+        // Apply to endpoints
+        s.mp1.force += elasticForce;
+        s.mp2.force += -elasticForce;
+    }
 }
 
 void OpenProjectSimulator::simulateTimestep(float timeStep)
 {
+    for (MassPoint& mp : this->massPoints) {
+        if (mp.isFixed) continue;
+        mp.oldPosition = mp.position;
+        mp.oldVelocity = mp.velocity;
+        mp.position += mp.velocity * 0.5 * timeStep;
+        mp.velocity += (mp.force / m_fMass) * 0.5 * timeStep;
+    }
+
+    //compute force at new point and apply if needed (also, floor collision once we have final state)
+    this->computeForces();
+    for (MassPoint& mp : this->massPoints) {
+        if (mp.isFixed) continue;
+        mp.position = mp.oldPosition + mp.velocity * timeStep;
+        mp.velocity = mp.oldVelocity + (mp.force / m_fMass) * timeStep;
+
+        // Floor collision
+        float floor_level = -1.0;
+        if (mp.position.y < floor_level) {
+            mp.position.y = floor_level + (floor_level - mp.position.y);
+            mp.velocity.y *= -1;
+        }
+    }
+
     for (force& f_i : this->forces) {
         Vec3 q = cross(f_i.applicationPoint, f_i.forceApplied);
         (this->RigidBodies)[f_i.applicationBody].angularMomentum += timeStep * q;
@@ -202,6 +266,20 @@ void OpenProjectSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, Rigid
 
     }
 
+}
+
+int OpenProjectSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool isFixed)
+{
+    int index = (this->massPoints).size();
+    (this->massPoints).push_back(MassPoint(position, velocity, isFixed));
+    return index;
+}
+
+void OpenProjectSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
+{
+    (this->springs).push_back(
+        Spring((this->massPoints)[masspoint1], (this->massPoints)[masspoint2], initialLength)
+    );
 }
 
 void OpenProjectSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
