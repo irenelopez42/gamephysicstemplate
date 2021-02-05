@@ -39,10 +39,9 @@ void OpenProjectSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 {
     this->DUC->setUpLighting(Vec3(0, 0, 0), 0.4 * Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 
-    Vec3 scale1 = Vec3(0.1f, 0.1f, 0.1f);
-    Vec3 scale2 = Vec3(0.01f, 0.01f, 0.01f);
+    Vec3 scale = Vec3(0.1f, 0.1f, 0.1f);
     for (Spring& s : this->springs) {
-        this->DUC->drawSphere(s.mp1.position, scale1);
+        this->DUC->drawSphere(s.mp1.position, scale);
         this->DUC->beginLine();
         this->DUC->drawLine(s.mp1.position, m_springColor, s.mp2.position, m_springColor);
         this->DUC->endLine();
