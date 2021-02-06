@@ -66,11 +66,13 @@ void OpenProjectSimulator::notifyCaseChanged(int testCase)
     switch (testCase) {
     case 0:
         addSpring(
-            addRigidBody(Vec3( -1.5, 0, 0 ), Vec3( 0, 0, 0 ), m_fMass),
-            addRigidBody(Vec3( -1.0, 0, 0 ), Vec3( 0, 0, 0 ), m_fMass),
+            addRigidBody(Vec3( -1.5, 0, 0 ), Vec3( 0.1, 0.1, 0.1 ), m_fMass),
+            addRigidBody(Vec3( -1.0, 0, 0 ), Vec3( 0.1, 0.1, 0.1 ), m_fMass),
             0.5
         );
         (this->RigidBodies)[0].isFixed = true;
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 0.0);
 
         addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
         (this->RigidBodies)[2].orientation = Quat(Vec3(0, 0, 1), 0.0);
@@ -133,7 +135,7 @@ void OpenProjectSimulator::computeForces()
 
 void OpenProjectSimulator::simulateTimestep(float timeStep)
 {
-    //compute force at new point and apply if needed (also, floor collision once we have final state)
+    //Compute elastic forces for bodies with springs.
     this->computeForces();
 
     for (force& f_i : this->forces) {
