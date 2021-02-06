@@ -13,16 +13,8 @@ struct MassPoint {
     bool isFixed;
 };
 
-struct Spring {
-    Spring(MassPoint& mp1, MassPoint& mp2, float initialLength) :
-        mp1(mp1), mp2(mp2), initialLength(initialLength) {
-    }
-    MassPoint& mp1, & mp2;
-    float initialLength;
-};
-
 struct RigidBody {
-    RigidBody(Vec3 position, Vec3 size, int mass)
+    RigidBody(Vec3 position, Vec3 size, float mass)
         : position(position), size(size), mass(mass) {
     }
     Vec3 position;
@@ -30,12 +22,20 @@ struct RigidBody {
     Vec3 angularVelocity;
     Vec3 size;  //  (width, depth, height)
     Vec3 angularMomentum;
-    int mass;
+    float mass;
     Quat orientation;
     Vec3 totalForce; //  total force acting on center of mass
     bool isFixed = false;
     Mat4 worldMatrix;
     bool canCollide = true;
+};
+
+struct Spring {
+    Spring(RigidBody& rb1, RigidBody& rb2, float initialLength) :
+        rb1(rb1), rb2(rb2), initialLength(initialLength) {
+    }
+    RigidBody& rb1, & rb2;
+    float initialLength;
 };
 
 struct force {
@@ -63,7 +63,7 @@ public:
     void simulateTimestep(float timeStep);
     int addMassPoint(Vec3 position, Vec3 velocity, bool isFixed);
     void addSpring(int masspoint1, int masspoint2, float initialLength);
-    void addRigidBody(Vec3 position, Vec3 size, int mass);
+    int addRigidBody(Vec3 position, Vec3 size, int mass);
     void calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c);
     void onClick(int x, int y);
     void onMouse(int x, int y);
