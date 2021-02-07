@@ -3,6 +3,7 @@
 #include "Simulator.h"
 #include "collisionDetect.h"
 
+
 struct MassPoint {
     MassPoint(Vec3 position, Vec3 velocity, bool isFixed)
         : position(position), velocity(velocity), isFixed(isFixed) {
@@ -26,8 +27,18 @@ struct RigidBody {
     Quat orientation;
     Vec3 totalForce; //  total force acting on center of mass
     bool isFixed = false;
+    bool hasGravity = false;
     Mat4 worldMatrix;
     bool canCollide = true;
+    bool destroyed = false;
+};
+
+struct Spring {
+    Spring(RigidBody& rb1, RigidBody& rb2, float initialLength) :
+        rb1(rb1), rb2(rb2), initialLength(initialLength) {
+    }
+    RigidBody& rb1, & rb2;
+    float initialLength;
 };
 
 struct Spring {
@@ -48,13 +59,13 @@ struct force {
 };
 
 
-class OpenProjectSimulator:public Simulator{
+class OpenProjectSimulator :public Simulator {
 public:
     // Construtors
     OpenProjectSimulator();
-    
+
     // UI Functions
-    void initUI(DrawingUtilitiesClass * DUC);
+    void initUI(DrawingUtilitiesClass* DUC);
     void reset();
     void drawFrame(ID3D11DeviceContext* pd3dImmediateContext);
     void notifyCaseChanged(int testCase);
@@ -71,7 +82,7 @@ public:
     // Specific Functions
     const char* getTestCasesStr();
     void applyExternalForce(Vec3 force);
-    
+
 private:
     // Attributes
     // add your RigidBodySystem data members, for e.g.,
@@ -83,6 +94,7 @@ private:
     float m_fDamping;
     float m_fGravity;
     Vec3 m_externalForce;
+    int castlesDestroyed;
 
     std::vector<MassPoint> massPoints;
     std::vector<Spring> springs;
