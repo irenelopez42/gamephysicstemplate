@@ -4,16 +4,6 @@
 #include "collisionDetect.h"
 
 
-struct MassPoint {
-    MassPoint(Vec3 position, Vec3 velocity, bool isFixed)
-        : position(position), velocity(velocity), isFixed(isFixed) {
-    }
-    Vec3 position, oldPosition;  // old position and velocity needed for midpoint
-    Vec3 velocity, oldVelocity;
-    Vec3 force;
-    bool isFixed;
-};
-
 struct RigidBody {
     RigidBody(Vec3 position, Vec3 size, float mass)
         : position(position), size(size), mass(mass) {
@@ -31,14 +21,6 @@ struct RigidBody {
     Mat4 worldMatrix;
     bool canCollide = true;
     bool destroyed = false;
-};
-
-struct Spring {
-    Spring(RigidBody& rb1, RigidBody& rb2, float initialLength) :
-        rb1(rb1), rb2(rb2), initialLength(initialLength) {
-    }
-    RigidBody& rb1, & rb2;
-    float initialLength;
 };
 
 struct Spring {
@@ -72,7 +54,6 @@ public:
     void externalForcesCalculations(float timeElapsed);
     void computeForces();
     void simulateTimestep(float timeStep);
-    int addMassPoint(Vec3 position, Vec3 velocity, bool isFixed);
     void addSpring(int masspoint1, int masspoint2, float initialLength);
     int addRigidBody(Vec3 position, Vec3 size, int mass);
     void calcImpulse(CollisionInfo info, RigidBody& rbA, RigidBody& rbB, int c);
@@ -96,7 +77,6 @@ private:
     Vec3 m_externalForce;
     int castlesDestroyed;
 
-    std::vector<MassPoint> massPoints;
     std::vector<Spring> springs;
     std::vector<RigidBody> RigidBodies;
     std::vector<force> forces;

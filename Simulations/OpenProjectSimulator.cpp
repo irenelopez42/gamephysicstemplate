@@ -31,7 +31,6 @@ void OpenProjectSimulator::initUI(DrawingUtilitiesClass* DUC)
 void OpenProjectSimulator::reset()
 {
     (this->springs).clear();
-    (this->massPoints).clear();
     (this->RigidBodies).clear();
     (this->forces).clear();
 }
@@ -302,14 +301,6 @@ void OpenProjectSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, Rigid
 
     }
 
-}
-
-//TODO: Delete unused fuctions for MassPoints
-int OpenProjectSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool isFixed)
-{
-    int index = (this->massPoints).size();
-    (this->massPoints).push_back(MassPoint(position, velocity, isFixed));
-    return index;
 }
 
 void OpenProjectSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
