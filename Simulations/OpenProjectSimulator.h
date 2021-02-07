@@ -76,6 +76,7 @@ private:
     float m_fGravity;
     Vec3 m_externalForce;
     int castlesDestroyed;
+    int movingRB;
 
     std::vector<Spring> springs;
     std::vector<RigidBody> RigidBodies;
