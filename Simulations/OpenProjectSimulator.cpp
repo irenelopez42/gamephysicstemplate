@@ -26,6 +26,7 @@ void OpenProjectSimulator::initUI(DrawingUtilitiesClass* DUC)
     TwAddVarRW(DUC->g_pTweakBar, "Mass Projectile", TW_TYPE_FLOAT, &m_fMass, "min=0.1 max=100.0 step=0.1");
     TwAddVarRW(DUC->g_pTweakBar, "Stiffness", TW_TYPE_FLOAT, &m_fStiffness, "min=0.0 max=500 step=0.5");
     TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "min=0.00 max=5.00 step=0.05");
+    TwAddVarRO(DUC->g_pTweakBar, "Castles destroyed", TW_TYPE_INT8, &castlesDestroyed, "");
 }
 
 void OpenProjectSimulator::reset()
