@@ -26,12 +26,12 @@ void OpenProjectSimulator::initUI(DrawingUtilitiesClass* DUC)
     TwAddVarRW(DUC->g_pTweakBar, "Mass Projectile", TW_TYPE_FLOAT, &m_fMass, "min=0.1 max=100.0 step=0.1");
     TwAddVarRW(DUC->g_pTweakBar, "Stiffness", TW_TYPE_FLOAT, &m_fStiffness, "min=0.0 max=500 step=0.5");
     TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "min=0.00 max=5.00 step=0.05");
+    TwAddVarRO(DUC->g_pTweakBar, "Castles destroyed", TW_TYPE_INT8, &castlesDestroyed, "");
 }
 
 void OpenProjectSimulator::reset()
 {
     (this->springs).clear();
-    (this->massPoints).clear();
     (this->RigidBodies).clear();
     (this->forces).clear();
 }
@@ -66,65 +66,64 @@ void OpenProjectSimulator::notifyCaseChanged(int testCase)
     this->reset();
     switch (testCase) {
     case 0:
+        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(1.5, -0.124, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[2].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(2.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[3].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(1.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[4].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(1.5, 0.627, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[5].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(3.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[6].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(4.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[7].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(3.5, -0.124, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[8].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(4.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[9].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(3.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[10].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(3.5, 0.627, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[11].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(2.0, 0.877, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[12].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(3.0, 0.877, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[13].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(2.5, 1.253, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[14].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(3.0, 1.628, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[15].orientation = Quat(Vec3(0, 0, 1), 0.0);
+        addRigidBody(Vec3(2.0, 1.628, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[16].orientation = Quat(Vec3(0, 0, 1), 0.0);
+
+        addRigidBody(Vec3(2.5, 2.004, 0.0), Vec3(1.8, 0.25, 0.5), 2);
+        (this->RigidBodies)[17].orientation = Quat(Vec3(0, 0, 1), 0.0);
         addSpring(
             addRigidBody(Vec3(-1.5, 0, 0), Vec3(0.1, 0.1, 0.1), m_fMass),
             addRigidBody(Vec3(-1.0, 0, 0), Vec3(0.1, 0.1, 0.1), m_fMass),
             0.5
         );
-        (this->RigidBodies)[0].isFixed = true;
-        (this->RigidBodies)[0].destroyed = true;
-        (this->RigidBodies)[0].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        (this->RigidBodies)[1].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        (this->RigidBodies)[1].destroyed = true;
-
-        addRigidBody(Vec3(1.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[2].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(2.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[3].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(1.5, -0.124, 0.0), Vec3(1.8, 0.25, 0.5), 2);
-        (this->RigidBodies)[4].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(2.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[5].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(1.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[6].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(1.5, 0.627, 0.0), Vec3(1.8, 0.25, 0.5), 2);
-        (this->RigidBodies)[7].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(3.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[8].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(4.0, -0.5, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[9].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(3.5, -0.124, 0.0), Vec3(1.8, 0.25, 0.5), 2);
-        (this->RigidBodies)[10].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(4.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[11].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(3.0, 0.251, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[12].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(3.5, 0.627, 0.0), Vec3(1.8, 0.25, 0.5), 2);
-        (this->RigidBodies)[13].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(2.0, 0.877, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[14].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(3.0, 0.877, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[15].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(2.5, 1.253, 0.0), Vec3(1.8, 0.25, 0.5), 2);
-        (this->RigidBodies)[16].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(3.0, 1.628, 0.0), Vec3(0.4, 0.5, 0.25), 2);
-        (this->RigidBodies)[17].orientation = Quat(Vec3(0, 0, 1), 0.0);
-        addRigidBody(Vec3(2.0, 1.628, 0.0), Vec3(0.4, 0.5, 0.25), 2);
+        (this->RigidBodies)[18].isFixed = true;
+        (this->RigidBodies)[18].destroyed = true;
         (this->RigidBodies)[18].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
-        addRigidBody(Vec3(2.5, 2.004, 0.0), Vec3(1.8, 0.25, 0.5), 2);
         (this->RigidBodies)[19].orientation = Quat(Vec3(0, 0, 1), 0.0);
-
+        (this->RigidBodies)[19].destroyed = true;
+            
         break;
     }
 }
@@ -145,7 +144,7 @@ void OpenProjectSimulator::externalForcesCalculations(float timeElapsed)
         float inputScale = 0.05f;
         inputWorld = inputWorld * inputScale;
         m_externalForce = inputWorld;
-        (this->RigidBodies)[1].linearVelocity += timeElapsed * m_externalForce / m_fMass;
+        (this->RigidBodies)[19].linearVelocity += timeElapsed * m_externalForce / m_fMass;
 
     }
     else {
@@ -237,7 +236,7 @@ void OpenProjectSimulator::simulateTimestep(float timeStep)
         std::cout << "Destroyed Castle " << castlesDestroyed << endl;
         //Sleep(100000);
         this->notifyCaseChanged(0);
-        
+
     }
 
     for (int i = 0; i < RigidBodies.size(); i++) {
@@ -302,14 +301,6 @@ void OpenProjectSimulator::calcImpulse(CollisionInfo info, RigidBody& rbA, Rigid
 
     }
 
-}
-
-//TODO: Delete unused fuctions for MassPoints
-int OpenProjectSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool isFixed)
-{
-    int index = (this->massPoints).size();
-    (this->massPoints).push_back(MassPoint(position, velocity, isFixed));
-    return index;
 }
 
 void OpenProjectSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
